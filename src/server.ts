@@ -26,8 +26,8 @@ const port = process.env.PORT || 4000;
 
 // Configuración recomendada para desarrollo:
 app.use(cors({
-  origin: 'http://localhost:3000', // Cambia al puerto de tu frontend si es diferente
-  credentials: true, // Permite el uso de cookies/sesión
+  origin: 'http://localhost:3000',
+  credentials: true, 
 }));
 
 app.use(express.json());
