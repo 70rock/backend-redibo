@@ -20,6 +20,8 @@ import reservationsRoutes from './routes/reservations/route';
 import reviewsRoutes from './routes/reviews/route';
 import reviewsIdRoutes from './routes/reviews/[id]/route';
 
+import hostCarsRoutes from './routes/cars/route';
+
 const prisma = new PrismaClient();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -41,6 +43,9 @@ app.use('/api/reviews', requireAuth, reviewsIdRoutes);
 app.use('/api/calificaciones', requireAuth, calificacionesRoutes);
 app.use('/api/calificaciones', requireAuth, calificacionesIdRoutes);
 app.use('/api/rentals/completed', requireAuth, rentalsCompletedRoutes);
+
+// Ruta de MisAutos
+app.use('/api/host-cars', hostCarsRoutes);
 
 // Rutas de autenticación individuales
 app.use('/api/auth/signin', signinRoutes);
