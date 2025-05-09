@@ -19,6 +19,7 @@ import reservationsRoutes from './routes/reservations/route';
 
 import reviewsRoutes from './routes/reviews/route';
 import reviewsIdRoutes from './routes/reviews/[id]/route';
+import carCommentsRoutes from './routes/car-comments/route';
 
 import hostCarsRoutes from './routes/cars/route';
 
@@ -28,8 +29,8 @@ const port = process.env.PORT || 4000;
 
 // Configuración recomendada para desarrollo:
 app.use(cors({
-  origin: 'http://localhost:3000', // Cambia al puerto de tu frontend si es diferente
-  credentials: true, // Permite el uso de cookies/sesión
+  origin: 'http://localhost:3000',
+  credentials: true, 
 }));
 
 app.use(express.json());
@@ -42,6 +43,7 @@ app.use('/api/reviews', requireAuth, reviewsRoutes);
 app.use('/api/reviews', requireAuth, reviewsIdRoutes);
 app.use('/api/calificaciones', requireAuth, calificacionesRoutes);
 app.use('/api/calificaciones', requireAuth, calificacionesIdRoutes);
+app.use('/api/car-comments', requireAuth, carCommentsRoutes);
 app.use('/api/rentals/completed', requireAuth, rentalsCompletedRoutes);
 
 // Ruta de MisAutos
@@ -77,6 +79,21 @@ app.get('/api/cars', async (req: express.Request, res: express.Response) => {
     res.status(500).json({ error: 'Error al obtener los autos' });
   }
 });
+
+app.get('/api/cars/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const car = await prisma.car.findUnique({
+      where: { id },
+      include: { imagenes: true }
+    });
+    if (!car) return res.status(404).json({ error: "Auto no encontrado" });
+    res.json(car);
+  } catch (error) {
+    res.status(500).json({ error: "Error al buscar el auto" });
+  }
+});
+
 
 // Rutas de usuarios
 app.get('/api/users', async (req: express.Request, res: express.Response) => {

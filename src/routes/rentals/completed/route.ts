@@ -40,6 +40,11 @@ router.get("/", async (req: Request, res: Response) => {
           select: {
             marca: true,
             modelo: true,
+            imagenes: {
+              select: {
+                url: true
+              }
+            }
           },
         },
       },

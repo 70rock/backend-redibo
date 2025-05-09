@@ -4,7 +4,7 @@ import { getUserId } from "../../lib/auth"
 
 const router = Router()
 
-// GET /api/reviews?hostId=...&renterId=...
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     const { hostId, renterId } = req.query
@@ -74,12 +74,22 @@ router.post("/", async (req: Request, res: Response) => {
       },
     })
 
-    // Actualizar rating promedio del arrendatario
+   
     const reviews = await prisma.review.findMany({
       where: { renterId },
+      orderBy: { createdAt: "desc"},
+      include: {
+        car: {
+          include: {
+            imagenes: true
+          }
+        }
+      }
     })
 
     const avgRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+
+   
 
     await prisma.renter.update({
       where: { id: renterId },
