@@ -4,24 +4,20 @@ import { getUserId } from "../../lib/auth"
 
 const router = Router()
 
-
+// GET /api/car-comments?carId=...
 router.get("/", async (req: Request, res: Response) => {
   try {
     const { carId } = req.query
 
     if (!carId) {
-      return res.status(400).json({ error: "ID del vehículo es requerido" })
+      return res.status(400).json({ error: "Se requiere el ID del auto" })
     }
 
-    
-    const userId = getUserId(req)
-    if (!userId) {
-      return res.status(401).json({ error: "No autorizado" })
-    }
-
-    
-    const comments = await prisma.review.findMany({
-      where: { carId: carId as string },
+    // Obtener comentarios con información del auto y sus imágenes
+    const comments = await prisma.carComment.findMany({
+      where: {
+        carId: carId as string
+      },
       include: {
         renter: {
           select: {
@@ -29,9 +25,23 @@ router.get("/", async (req: Request, res: Response) => {
             lastName: true,
             profilePicture: true
           }
+        },
+        car: {
+          include: {
+            imagenes: true,
+            user: {
+              select: {
+                nombre: true,
+                email: true,
+                image: true
+              }
+            }
+          }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: {
+        createdAt: "desc"
+      }
     })
 
     return res.json(comments)
@@ -41,7 +51,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 })
 
-
+// POST /api/car-comments
 router.post("/", async (req: Request, res: Response) => {
   try {
     const { carId, comment, rating } = req.body
@@ -50,23 +60,14 @@ router.post("/", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Faltan campos requeridos" })
     }
 
-   
+    // Verificar autenticación
     const userId = getUserId(req)
     if (!userId) {
       return res.status(401).json({ error: "No autorizado" })
     }
 
-    
-    const renter = await prisma.renter.findFirst({
-      where: { id: userId }
-    })
-
-    if (!renter) {
-      return res.status(403).json({ error: "Solo los arrendatarios pueden dejar comentarios" })
-    }
-
-    
-    const newComment = await prisma.review.create({
+    // Crear comentario
+    const newComment = await prisma.carComment.create({
       data: {
         carId,
         renterId: userId,
@@ -79,6 +80,18 @@ router.post("/", async (req: Request, res: Response) => {
             firstName: true,
             lastName: true,
             profilePicture: true
+          }
+        },
+        car: {
+          include: {
+            imagenes: true,
+            user: {
+              select: {
+                nombre: true,
+                email: true,
+                image: true
+              }
+            }
           }
         }
       }

@@ -13,13 +13,13 @@ router.get("/", async (req: Request, res: Response) => {
       return res.status(500).json({ error: "Host ID o Renter ID es requerido" })
     }
 
-    // Verificar autenticación
+    
     const userId = getUserId(req)
     if (!userId) {
       return res.status(401).json({ error: "No autorizado" })
     }
 
-    // Construir la consulta
+   
     const whereClause: any = {}
     if (hostId) whereClause.hostId = hostId
     if (renterId) whereClause.renterId = renterId
